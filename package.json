@@ -1,0 +1,13 @@
+{
+  "name": "adinotes-backend",
+  "version": "1.0.0",
+  "description": "backend of adinotes the cloud book",
+  "main": "index.js",
+  "author": "AdithyanA",
+  "license": "MIT",
+  "private": true,
+  "dependencies": {
+    "express": "^4.18.1",
+    "mongoose": "^6.3.1"
+  }
+}
