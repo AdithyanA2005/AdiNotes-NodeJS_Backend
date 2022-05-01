@@ -1,11 +1,11 @@
-const display = require("./utilities");
+const display = require("./utilities/display");
 const mongoose = require("mongoose");
 
 const mongoURI = "mongodb://localhost:27017/";
 const connect = () => {
-  // This will establish connection to mongoDB
+  // Extablish Connection To MongoDb
   mongoose.connect(mongoURI, () => {
-    display("Connection Established With MongoDB");
+    display("Connected To MongoDB");
   });
 };
 
