@@ -1,5 +1,5 @@
 const express = require("express");
-const connectToMongo = require("./database/config");
+const connectToMongo = require("./database");
 const { PORT } = require("./utilities/constants");
 const display = require("./utilities/display");
 
