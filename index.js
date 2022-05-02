@@ -7,7 +7,7 @@ connectToMongo();
 
 // Express Constants
 const app = express();
-const port = 3000;
+const port = 5000;
 
 // Middleware for using req.body
 app.use(express.json());
