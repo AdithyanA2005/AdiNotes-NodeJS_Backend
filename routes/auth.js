@@ -9,17 +9,10 @@ const passwordMinLength = 8;
 const passwordMaxLength = 30;
 const usernameMinLength = 5;
 
-function handleDBErrors(err) {
-  if (Object.keys(err.keyPattern).includes("email")) return { message: "Email already exists" };
-  if (Object.keys(err.keyPattern).includes("username"))
-    return { message: "Username already exists" };
-  return { message: "Unknown Error Occured in API, we will fix it soon" };
-}
-
 // CREATE A NEW USER | /api/auth | auth not-required
 router.post(
   "/createuser",
-  // Onpage Validation Checks
+  // Checks for client validation error
   [
     check("username")
       .isLength({ min: usernameMinLength })
@@ -33,22 +26,33 @@ router.post(
 
     check("email", "Invalid Email Entered").isEmail(),
   ],
-  (req, res) => {
-    // If onpage validation errors exists send bad request
+  async (req, res) => {
+    // If validation error send it with a bad request
     const errors = validationResult(req);
     if (!errors.isEmpty()) return res.status(400).json({ errors: errors.array() });
 
-    // (Create new user || Handle DB errors) && finally provide the new-user/db-error
-    User.create({
-      username: req.body.username.trim(),
-      name: req.body.name.trim(),
-      email: req.body.email.trim(),
-      password: req.body.password.trim(),
-    })
-      .then((user) => res.json(user))
-      .catch((err) => {
-        res.status(400).send(handleDBErrors(err));
-      });
+    try {
+      // Checks for user with same email
+      if (await User.findOne({ email: req.body.email }))
+        return res.status(400).json({ error: "User with same email exists" });
+
+      // Checks for user with same username
+      if (await User.findOne({ username: req.body.username }))
+        return res.status(400).json({ error: "User with same username exists" });
+
+      // If user with same email || same username doesn't exists create new user and send it
+      res.json(
+        await User.create({
+          username: req.body.username.trim(),
+          name: req.body.name.trim(),
+          email: req.body.email.trim(),
+          password: req.body.password.trim(),
+        })
+      );
+    } catch (error) {
+      // TODO: ADD LOGGER
+      res.status(500).send("Some error occured: ", error);
+    }
   }
 );
 
