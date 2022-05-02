@@ -1,5 +1,6 @@
-const connectToMongo = require("./database");
+const connectToMongo = require("./database/config");
 const express = require("express");
+const display = require("./utilities/display");
 
 // Connect to mongoDB
 connectToMongo();
@@ -16,5 +17,6 @@ app.use("/api/auth", require("./routes/auth"));
 app.use("/api/notes", require("./routes/notes"));
 
 app.listen(port, () => {
-  console.log(`Example app listening on port ${port}`);
+  console.log(` ${port}`);
+  display(`Server started at port ${port}`);
 });
