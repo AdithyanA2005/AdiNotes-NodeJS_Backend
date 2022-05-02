@@ -14,6 +14,7 @@ const {
 
 const router = express.Router();
 const User = require("../models/User");
+const { findUserWithEmail, findUserWithUsername } = require("../database/operation");
 
 // CREATE A NEW USER | /api/v1/auth/signup | auth not-required | POST
 router.post(
@@ -117,15 +118,57 @@ router.post(
         username: req.body.username,
       });
 
-      // Creating and sending a JWT auth token with user id as response
-      const authData = { user: { id: user.id } };
-      const authToken = jwt.sign(authData, JWT_SECRET);
+      // Creating and sending a JWT auth token with user id as payload
+      const authPayload = { user: { id: user.id } };
+      const authToken = jwt.sign(authPayload, JWT_SECRET);
       res.json({ authToken });
     } catch (error) {
       // TODO: Add Logger
+      console.error(error);
       res.status(500).send("Some Internal Error Occured in API: ");
     }
   }
 );
 
+// LOGIN A USER | /api/v1/auth/login | auth not-required | POST
+router.post(
+  "/login",
+  [
+    check("account").notEmpty().withMessage("Field cannot remain empty"),
+    check("password").notEmpty().withMessage("Pasword cannot remain empty"),
+  ],
+  async (req, res) => {
+    // If any validation error return send it
+    const errors = validationResult(req);
+    if (!errors.isEmpty()) return res.status(400).json({ errors: errors.array() });
+
+    // Get the login credentials
+    const { account, password } = req.body;
+    const accountIdentifier = noSpecialCharacters(req.body.account) ? "username" : "email";
+
+    try {
+      // Get the user with the credentials
+      let user =
+        accountIdentifier === "username"
+          ? await findUserWithUsername(account)
+          : await findUserWithEmail(account);
+
+      // If no user exists with the given account respond with a error
+      if (!user) return res.status(400).json({ error: "Please enter correct credentials" });
+
+      // Respond with a error if the entered password and user.password are not same
+      const passwordSame = await bcrypt.compare(password, user.password);
+      if (!passwordSame) return res.status(400).json({ error: "Please enter correct credentials" });
+
+      // Generating the authtoken and send it as a response
+      const authPayload = { user: { id: user.id } };
+      const authToken = jwt.sign(authPayload, JWT_SECRET);
+      res.json({ authToken });
+    } catch (error) {
+      // TODO: Add Logger
+      console.error(error);
+      res.status(500).send("Some Internal Error Occured in API: ");
+    }
+  }
+);
 module.exports = router;
