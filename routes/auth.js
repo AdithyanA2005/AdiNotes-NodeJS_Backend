@@ -68,4 +68,18 @@ router.post("/login", loginValidatorChecksArray, getValidationError, async (req,
     res.status(500).send("Some Internal Error Occured in API: ");
   }
 });
+
+// GET LOGIN IN USER DETAILS | /api/v1/auth/getuser | auth requierd | POST
+router.post("/getuser", fetchuser, async (req, res) => {
+  try {
+    userId = req.user.id;
+    const user = await User.findById(userId).select("-password");
+    res.send(user);
+  } catch (error) {
+    // TODO: Add Logger
+    console.error(error);
+    res.status(500).send("Some Internal Error Occured in API: ");
+  }
+});
+
 module.exports = router;
