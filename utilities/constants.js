@@ -5,6 +5,7 @@ dotenv.config();
 
 // APP
 const PORT = process.env.PORT;
+const JWT_SECRET = process.env.JWT_SECRET;
 
 // Database
 const DATABASE_URL = process.env.DATABASE_URL;
@@ -27,5 +28,6 @@ module.exports = {
   USERNAME_MAXIMUM_LENGTH,
   NAME_MAXIMUM_LENGTH,
   DATABASE_URL,
+  JWT_SECRET,
   PORT,
 };

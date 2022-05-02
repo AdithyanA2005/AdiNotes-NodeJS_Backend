@@ -1,4 +1,6 @@
 const express = require("express");
+const bcrypt = require("bcryptjs");
+const jwt = require("jsonwebtoken");
 const { noSpecialCharacters, onlyLettersAndSpaces } = require("../utilities/helpers");
 const { body, validationResult, check } = require("express-validator");
 const {
@@ -7,6 +9,7 @@ const {
   PASSWORD_MINIMUM_LENGTH,
   PASSWORD_MAXIMUM_LENGTH,
   NAME_MAXIMUM_LENGTH,
+  JWT_SECRET,
 } = require("../utilities/constants");
 
 const router = express.Router();
@@ -74,21 +77,23 @@ router.post(
     const errors = validationResult(req);
     if (!errors.isEmpty()) return res.status(400).json({ errors: errors.array() });
 
+    // Generate the salt for getting the secured version of users password
+    const salt = await bcrypt.genSalt(10);
+    securePassword = await bcrypt.hash(req.body.password, salt);
+
     // If no validation error, create new user
     try {
       const user = await User.create({
         name: req.body.name,
         email: req.body.email,
-        password: req.body.password,
+        password: securePassword,
         username: req.body.username,
       });
 
-      // Send |Name, Email, Username| as a json response
-      res.json({
-        name: user.name,
-        email: user.email,
-        username: user.username,
-      });
+      // Creating and sending a JWT auth token with user id as response
+      const authData = { user: { id: user.id } };
+      const authToken = jwt.sign(authData, JWT_SECRET);
+      res.json({ authToken });
     } catch (error) {
       // TODO: Add Logger
       res.status(500).send("Some Internal Error Occured in API: ");
