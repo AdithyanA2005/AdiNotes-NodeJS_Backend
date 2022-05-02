@@ -15,9 +15,9 @@ const {
 const router = express.Router();
 const User = require("../models/User");
 
-// CREATE A NEW USER | /api/auth/createuser | auth not-required | POST
+// CREATE A NEW USER | /api/v1/auth/signup | auth not-required | POST
 router.post(
-  "/createuser",
+  "/signup",
   [
     // CHECKS BASED ON USERNAME
     check("username")
