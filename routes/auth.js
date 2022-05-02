@@ -1,57 +1,97 @@
 const express = require("express");
+const { noSpecialCharacters, onlyLettersAndSpaces } = require("../utilities/helpers");
 const { body, validationResult, check } = require("express-validator");
+const {
+  USERNAME_MINIMUM_LENGTH,
+  USERNAME_MAXIMUM_LENGTH,
+  PASSWORD_MINIMUM_LENGTH,
+  PASSWORD_MAXIMUM_LENGTH,
+  NAME_MAXIMUM_LENGTH,
+} = require("../utilities/constants");
+
 const router = express.Router();
 const User = require("../models/User");
-const { findUserByEmail } = require("../utilities/database");
 
-// Field lengths
-const passwordMinLength = 8;
-const passwordMaxLength = 30;
-const usernameMinLength = 5;
-
-// CREATE A NEW USER | /api/auth | auth not-required
+// CREATE A NEW USER | /api/auth/createuser | auth not-required
 router.post(
   "/createuser",
-  // Checks for client validation error
   [
+    // CHECKS BASED ON USERNAME
     check("username")
-      .isLength({ min: usernameMinLength })
-      .withMessage(`Username should atleast contain ${usernameMinLength} character`),
+      // Should have a minimum length USERNAME_MINIMUM_LENGTH
+      .isLength({ min: USERNAME_MINIMUM_LENGTH })
+      .withMessage(`Username should atleast contain ${USERNAME_MINIMUM_LENGTH} character`)
 
+      // Should have a maximum length USERNAME_MAXIMUM_LENGTH
+      .isLength({ max: USERNAME_MAXIMUM_LENGTH })
+      .withMessage(`Username should not be greater than ${USERNAME_MAXIMUM_LENGTH} characters`)
+
+      // Should Not contain special characters or whitespaces
+      .custom((value) => noSpecialCharacters(value))
+      .withMessage("Username should consist of only letters, digits and underscores"),
+
+    // CHECKS BASED ON PASSWORD
     check("password")
-      .isLength({ min: passwordMinLength })
-      .withMessage(`Password should atleast contain ${passwordMinLength} character`)
-      .isLength({ max: passwordMaxLength })
-      .withMessage(`Passwords should not exceed the length of ${passwordMaxLength} characters`),
+      // Should have a minimum length PASSWORD_MINIMUM_LENGTH
+      .isLength({ min: PASSWORD_MINIMUM_LENGTH })
+      .withMessage(`Password should atleast contain ${PASSWORD_MINIMUM_LENGTH} character`)
 
-    check("email", "Invalid Email Entered").isEmail(),
+      // Should have a maximum length PASSWORD_MAXIMUM_LENGTH
+      .isLength({ max: PASSWORD_MAXIMUM_LENGTH })
+      .withMessage(`Passwords should not be greater than ${PASSWORD_MAXIMUM_LENGTH} characters`),
+
+    // CHECKS BASED ON NAME
+    check("name")
+      // Checks the name is not empty
+      .notEmpty()
+      .withMessage("Name cant be empty")
+
+      // Should have a maximum length PASSWORD_MAXIMUM_LENGTH
+      .isLength({ max: NAME_MAXIMUM_LENGTH })
+      .withMessage(`Name should not be greater than ${PASSWORD_MAXIMUM_LENGTH} characters`)
+
+      // Should only contain letters and spaces
+      .custom((value) => onlyLettersAndSpaces(value))
+      .withMessage("Name should consist of only letters and spaces"),
+
+    // CHECKS BASED ON EMAIL
+    check("email").isEmail().withMessage("Enter a valid email"),
+
+    // CHECK WHETHER THE EMAIL IS ALREADY TAKEN
+    body("email").custom(async (value) => {
+      let user = await User.findOne({ email: value });
+      if (user) return Promise.reject("Email entered is already in use");
+    }),
+
+    // CHECK WHETHER THE USERNAME IS ALREADY TAKEN
+    body("username").custom(async (value) => {
+      let user = await User.findOne({ username: value });
+      if (user) return Promise.reject("Username entered is already in use");
+    }),
   ],
   async (req, res) => {
-    // If validation error send it with a bad request
+    // If any validation error send it
     const errors = validationResult(req);
     if (!errors.isEmpty()) return res.status(400).json({ errors: errors.array() });
 
+    // If no validation error, create new user
     try {
-      // Checks for user with same email
-      if (await User.findOne({ email: req.body.email }))
-        return res.status(400).json({ error: "User with same email exists" });
+      const user = await User.create({
+        name: req.body.name,
+        email: req.body.email,
+        password: req.body.password,
+        username: req.body.username,
+      });
 
-      // Checks for user with same username
-      if (await User.findOne({ username: req.body.username }))
-        return res.status(400).json({ error: "User with same username exists" });
-
-      // If user with same email || same username doesn't exists create new user and send it
-      res.json(
-        await User.create({
-          username: req.body.username.trim(),
-          name: req.body.name.trim(),
-          email: req.body.email.trim(),
-          password: req.body.password.trim(),
-        })
-      );
+      // Send |Name, Email, Username| as a json response
+      res.json({
+        name: user.name,
+        email: user.email,
+        username: user.username,
+      });
     } catch (error) {
-      // TODO: ADD LOGGER
-      res.status(500).send("Some error occured: ", error);
+      // TODO: Add Logger
+      res.status(500).send("Some Internal Error Occured in API: ");
     }
   }
 );
