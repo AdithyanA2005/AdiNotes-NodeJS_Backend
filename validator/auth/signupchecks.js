@@ -5,9 +5,9 @@ const {
   PASSWORD_MINIMUM_LENGTH,
   PASSWORD_MAXIMUM_LENGTH,
   NAME_MAXIMUM_LENGTH,
-} = require("../utilities/constants");
-const User = require("../models/User");
-const { noSpecialCharacters, onlyLettersAndSpaces } = require("../utilities/helpers");
+} = require("../../utilities/constants");
+const User = require("../../models/User");
+const { noSpecialCharacters, onlyLettersAndSpaces } = require("../../utilities/helpers");
 
 const signupValidatorChecksArray = [
   // CHECKS BASED ON USERNAME

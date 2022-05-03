@@ -2,7 +2,7 @@ const express = require("express");
 const fetchuser = require("../middleware/fetchuser");
 const getValidationError = require("../middleware/get-validation-error");
 const Note = require("../models/Note");
-const addNoteChecksArray = require("../validator/addnotecheck");
+const addNoteChecksArray = require("../validator/note/addnotecheck");
 
 // Ceating express router for routing
 const router = express.Router();

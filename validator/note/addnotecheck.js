@@ -4,7 +4,7 @@ const {
   NOTE_TITLE_MAXIMUM_LENGTH,
   NOTE_DESCRIPTION_MINIMUM_LENGTH,
   NOTE_DESCRIPTION_MAXIMUM_LENGTH,
-} = require("../utilities/constants");
+} = require("../../utilities/constants");
 
 const addNoteChecksArray = [
   check("title")
