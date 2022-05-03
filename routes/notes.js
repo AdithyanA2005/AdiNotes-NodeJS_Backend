@@ -60,4 +60,23 @@ router.put("/updatenote/:id", fetchuser, async (req, res) => {
   }
 });
 
+// DELETE NOTE OF A USER | /api/v1/notes/deletenote/:id | auth required | DELETE
+router.delete("/deletenote/:id", fetchuser, async (req, res) => {
+  try {
+    // Find the note to be deleted
+    let note = await Note.findById(req.params.id);
+    if (!note) return res.status(404).send("Not Found");
+
+    // If the note to be deleted is not owned by the user return error
+    if (note.user.toString() !== req.user.id) return res.status(401).send("Not allowed");
+
+    note = await Note.findByIdAndDelete(req.params.id);
+    res.json({ success: "Note has been deleted", note });
+  } catch (error) {
+    // TODO: Add Logger
+    console.error(error);
+    res.status(500).send("Some Internal Error Occured in API: ");
+  }
+});
+
 module.exports = router;
