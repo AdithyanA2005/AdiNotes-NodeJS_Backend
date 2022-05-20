@@ -1,4 +1,5 @@
 const express = require("express");
+const cors = require("cors");
 const connectToMongo = require("./database");
 const { PORT } = require("./utilities/constants");
 const display = require("./utilities/display");
@@ -10,7 +11,8 @@ connectToMongo();
 const app = express();
 const port = PORT;
 
-// Middleware for using req.body
+// Middleware
+app.use(cors());
 app.use(express.json());
 
 // Available Routes
