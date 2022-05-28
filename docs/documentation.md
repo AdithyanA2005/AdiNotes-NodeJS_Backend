@@ -15,7 +15,7 @@
 
 > Authentication: `not-required`
 
-> Fields:
+> ### Fields:
 >
 > ```json
 > {
@@ -26,7 +26,41 @@
 > }
 > ```
 
-> Response:
+> ### Fields validations
+>
+> ```json
+> {
+>   "username": [
+>     "USERNAME_MINIMUM_LENGTH=5",
+>     "USERNAME_MAXIMUM_LENGTH=100",
+>     "Shouldn't be empty",
+>     "Should consist of only letters, digits and underscores",
+>   ],
+>
+>   "name": [
+>     "NAME_MAXIMUM_LENGTH=50",
+>     "No minimum length",
+>     "Shouldn't be empty",
+>     "Should consist of only letters and spaces",
+>   ],
+>
+>   "email": [
+>     "Shouldn't be empty",
+>     "Should be a valid email",
+>   ],
+>
+>   "password": [
+>     "PASSWORD_MINIMUM_LENGTH=8",
+>     "PASSWORD_MAXIMUM_LENGTH=100",
+>     "Shouldn't be empty",
+>   ]
+> }
+> ```
+
+
+
+
+> ### Response:
 >
 > ```json
 > {
@@ -42,7 +76,7 @@
 
 > Authentication: `not-required`
 
-> Fields:
+> ### Fields:
 >
 > ```json
 > {
@@ -51,7 +85,23 @@
 > }
 > ```
 
-> Response:
+
+> ### Fields validations
+>
+> ```json
+> {
+>   "account": [
+>     "Account can be email or username",
+>     "Field cannot remain empty",
+>   ],
+>
+>   "password": [
+>     "Field cannot remain empty"
+>   ]
+> }
+> ```
+
+> ### Response:
 >
 > ```json
 > {
@@ -69,7 +119,7 @@
 
 > Web-Header: `auth-token: <authToken>`
 
-> Response:
+> ### Response:
 >
 > ```json
 > {
@@ -91,7 +141,7 @@
 
 > Web-Header: `auth-token: <authToken>`
 
-> Fields:
+> ### Fields:
 >
 > ```json
 > {
@@ -101,7 +151,26 @@
 > }
 > ```
 
-> Response:
+
+> ### Fields validations
+>
+> ```json
+> {
+>   "title": [
+>     "NOTE_TITLE_MINIMUM_LENGTH=3",
+>     "NOTE_TITLE_MAXIMUM_LENGTH=50",
+>     "Shouldn't remain empty",
+>   ],
+>
+>   "description": [
+>     "NOTE_DESCRIPTION_MINIMUM_LENGTH= 5",
+>     "NOTE_DESCRIPTION_MAXIMUM_LENGTH=200",
+>     "Shouldn't remain empty",
+>   ]
+> }
+> ```
+
+> ### Response:
 >
 > ```json
 > {
@@ -157,6 +226,24 @@
 > }
 > ```
 
+> ### Fields validations
+>
+> ```json
+> {
+>   "title": [
+>     "NOTE_TITLE_MINIMUM_LENGTH=3",
+>     "NOTE_TITLE_MAXIMUM_LENGTH=50",
+>     "Shouldn't remain empty",
+>   ],
+>
+>   "description": [
+>     "NOTE_DESCRIPTION_MINIMUM_LENGTH= 5",
+>     "NOTE_DESCRIPTION_MAXIMUM_LENGTH=200",
+>     "Shouldn't remain empty",
+>   ]
+> }
+> ``
+
 > Response:
 >
 > ```json
@@ -170,7 +257,7 @@
 > }
 > ```
 
-## Update A Note Of A User
+## Delete A Note Of A User
 
 > Endpoint: `/api/v1/notes/deletenote/:id`
 
